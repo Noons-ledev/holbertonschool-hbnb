@@ -69,9 +69,9 @@ BaseModel <|-- Place
 BaseModel <|-- Amenity
 BaseModel <|-- Review
 
-Place "1" --> "0..n" AmenityPlace
-Amenity "1" --> "0..n" AmenityPlace
-User "1" --> "0..n" Review : Writes
-User "1" *-- "0..n" Place : Owns
-Place "1" *-- "0..n" Review : Has
+Place "1" --> "many" AmenityPlace
+Amenity "1" --> "many" AmenityPlace
+User "1" --> "many" Review : Writes
+User "1" *-- "many" Place : Owns
+Place "1" *-- "many" Review : Has
 ```
