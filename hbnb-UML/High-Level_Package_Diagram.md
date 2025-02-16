@@ -1,4 +1,22 @@
 Here is our High level package diagram of the hbnb project
 
 
-<img width="307" alt="HighLevelPackageDiagram" src="https://github.com/user-attachments/assets/eba81d57-eb75-4e32-8bfe-e7f8d533db38" />
+```mermaid
+graph TB
+    A[**Presentation**
+        UserAPI
+        PlacesAPI
+        ReviewsAPI
+        AmenitiesAPI]
+    
+    B[**Business Logic**
+     User Model
+     Places Model
+     Reviews Model
+     Amenitites Model]
+    
+    C[**Persistence**
+    Database Access]
+
+    A-->|Facade Interface|B 
+    B-->|Database operations|C
