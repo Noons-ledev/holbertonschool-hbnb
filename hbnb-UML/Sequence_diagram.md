@@ -30,3 +30,32 @@ sequenceDiagram
 It show how the app will interact in a case where a user is trying to create an account
 
 The following case is about Place creation : 
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant API
+    participant BusinessLogicLayer
+    participant PersistenceLayer
+
+    User->>API: POST /places (title, description, price, lat, long, photos, amenities)
+    API->>BusinessLogicLayer: validateRequest (data)
+    BusinessLogicLayer->>PersistenceLayer: createPlace (data)
+        alt Insert Success
+            PersistenceLayer-->>BusinessLogicLayer: return new Place (id)
+            BusinessLogicLayer-->>API: return Response (201, place)
+            API-->>User: Response (201 Created) JSON (place)
+
+        else Missing required fields (photos, amenities, etc.)
+        BusinessLogicLayer ->> BusinessLogicLayer: Detects invalid input
+        BusinessLogicLayer-->>API: return Response (400, "Missing required fields")
+        API-->>User: Response (400 Bad Request) JSON (error)
+     
+
+        else Insert Failed
+            PersistenceLayer-->>BusinessLogicLayer: return Response (500, "Database Error")
+            BusinessLogicLayer-->>API: return Response (500, "Database Error")
+            API-->>User: Response (500 Internal Server Error) JSON (error)
+        end
+```
+Next Diagram is about the Review Submission : A user tries to submit a review to a place
