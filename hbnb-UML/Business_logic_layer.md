@@ -1,5 +1,5 @@
 The ClassDiagram of our HBNB project : 
- ```mermaid
+```mermaid
 classDiagram
   class BaseModel {
     <<abstract>>
@@ -16,8 +16,8 @@ classDiagram
     -string email
     -string password
     +boolean is_admin
-    +set_password(password)
-    +check_password(password)
+    -set_password(password)setter
+    -check_password(password)getter
     +sign_up()
     +login()
     +write_review()
@@ -31,7 +31,8 @@ classDiagram
     +float average_rating
     +float price
     +string currency
-    -UUID owner_id
+    -UUID user_id
+    +show_reviews()
     +get_owner()
     +add_amenity()
     +remove_amenity()
@@ -52,7 +53,6 @@ classDiagram
   }
 
   class Amenity {
-    +UUID id
     +string name
     +display(place_id)
     +delete()
