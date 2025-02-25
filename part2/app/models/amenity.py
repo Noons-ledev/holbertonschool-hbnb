@@ -2,7 +2,7 @@
 """
 Amenities Models made by Noons
 """
-from basemodel import BaseModel
+from .basemodel import BaseModel
 
 class Amenity(BaseModel):
     def __init__(self, name):

@@ -32,7 +32,7 @@ class User(BaseModel):
         super().__init__()
         self.first_name = validate_names(first_name)
         self.last_name = validate_names(last_name)
-        self.isadmin = isadmin
+        self.is_admin = isadmin
         self.email = validate_email(email)
         self.password = password
         self.places = []
@@ -48,13 +48,13 @@ class User(BaseModel):
         self.__password = value
 
     @property
-    def isadmin(self):
-        return self.__isadmin
+    def is_admin(self):
+        return self.__is_admin
 
-    @isadmin.setter
-    def isadmin(self, value):
+    @is_admin.setter
+    def is_admin(self, value):
         if isinstance(value, bool):
-            self.__isadmin = value
+            self.__is_admin = value
         else:
             raise ValueError("IsAdmin can be True or false only")
     

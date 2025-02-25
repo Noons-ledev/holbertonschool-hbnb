@@ -6,8 +6,6 @@ Reviews module for Hbnb project, made by Molly
 
 
 from .basemodel import BaseModel
-from .users import User
-from .places import Place
 
 
 class Review(BaseModel):
@@ -15,6 +13,8 @@ class Review(BaseModel):
     Creation of a new place
     """
     def __init__(self, text, rating, place, user):
+        from .users import User
+        from .places import Place
         if not (1 <= rating <= 5) or not isinstance(rating, (int, float)):
             raise ValueError("This must be between 1 and 5 stars")
         if text is None:
