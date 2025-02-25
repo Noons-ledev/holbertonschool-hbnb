@@ -7,6 +7,8 @@ Places module for Hbnb project, made by Molly
 
 from .basemodel import BaseModel
 from .users import User
+from .amenities import Amenity
+from .reviews import Review
 
 
 class Place(BaseModel):
@@ -16,6 +18,14 @@ class Place(BaseModel):
     def __init__(self, title, description, price, latitude, longitude, owner):
         if not isinstance(owner, User):
             raise TypeError("Owner must be user type !")
+        if not isinstance(title, str):
+            raise TypeError("Title must be a string!")
+        if not isinstance(price, (int, float)):
+            raise TypeError("Price must be a number")
+        if not isinstance(latitude, (int, float)):
+            raise TypeError("Latitude must be a number")
+        if not isinstance(longitude, (int, float)):
+            raise TypeError("Longitude must be a number!")
         super().__init__()
         self.title = title
         self.description = description
@@ -35,10 +45,10 @@ class Place(BaseModel):
         """
         Title given to a place by the owner
         """
-        if value is None:
-            raise ValueError("Place must have a title !")
-        if len(value) > 100:
-            raise ValueError("Too long ! 100 characters max !")
+        if not isinstance(value, str):
+            raise TypeError("Title must be a string!")
+        if len(value) > 100 or len(value) < 5:
+            raise ValueError("Title must be 5 to 100 characters long!")
         self._title = value
 
     @property
@@ -50,6 +60,8 @@ class Place(BaseModel):
         """
         Price given to a place by the owner
         """
+        if not isinstance(value, (int, float)):
+            raise TypeError("Price must be a number")
         if value <= 0:
             raise ValueError("You cant enter a negative price")
         self._price = value
@@ -63,6 +75,8 @@ class Place(BaseModel):
         """
         Latitude of the place
         """
+        if not isinstance(value, (int, float)):
+            raise TypeError("Latitude must be a number")
         if not (-90.0 <= value <= 90.0):
             raise ValueError("This latitude seems to be wrong")
         self._latitude = value
@@ -76,6 +90,19 @@ class Place(BaseModel):
         """
         Longitude of the place
         """
+        if not isinstance(value, (int, float)):
+            raise TypeError("Longitude must be a number!")
         if not (-180.0 <= value <= 180.0):
             raise ValueError("This longitude seems to be wrong")
         self._longitude = value
+
+    def add_review(self, review):
+        if isinstance(review, Review):
+            self.reviews.append(review)
+
+    def add_amenity(self, amenity):
+        if isinstance(amenity, Amenity):
+            self.amenities.append(amenity)
+
+    def get_owner(self):
+        return self.owner

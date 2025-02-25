@@ -4,7 +4,11 @@ Amenities Models made by Noons
 """
 from basemodel import BaseModel
 
-class Amenities(BaseModel):
+class Amenity(BaseModel):
     def __init__(self, name):
+        if not isinstance(name, str):
+            raise TypeError("Amenity name must be a string!")
+        if len(name) > 50:
+            raise ValueError("Name length must be 50 characters maximum!")
         super().__init__()
         self.name = name

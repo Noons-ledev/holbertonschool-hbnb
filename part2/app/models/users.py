@@ -2,8 +2,11 @@
 """
 Users Models made by Noons
 """
-from basemodel import BaseModel
+from .basemodel import BaseModel
 import re
+from .places import Place
+from .reviews import Review
+from .amenities import Amenity
 
 def validate_email(mail):
     email_regex = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
@@ -21,7 +24,7 @@ def validate_names(name):
                             "50 characters maximum")
     return name
 
-
+    
 class User(BaseModel):
 
 
@@ -37,7 +40,7 @@ class User(BaseModel):
     @property
     def password(self):
         return self.__password
-
+    
     @password.setter
     def password(self, value):
         if len(value) < 8:
@@ -54,11 +57,11 @@ class User(BaseModel):
             self.__isadmin = value
         else:
             raise ValueError("IsAdmin can be True or false only")
-
+    
     @property
     def email(self):
         return self.__email
-
+    
     @email.setter
     def email(self, value):
         check = validate_email(value)
@@ -68,12 +71,12 @@ class User(BaseModel):
             raise ValueError("Email must be from a valid format")
 
 
-#Here we are putting as private attribute first and last name,
+#Here we are putting as private attribute first and last name, 
 #So that the User can't modify those value without the validate_name check
     @property
     def  first_name(self):
         return self.__first_name
-
+    
     @first_name.setter
     def first_name(self, value):
         check = validate_names(value)
@@ -83,9 +86,13 @@ class User(BaseModel):
     @property
     def last_name(self):
         return self.__last_name
-
+    
     @last_name.setter
     def last_name(self, value):
         check = validate_names(value)
         if check == value:
             self.__last_name = value
+
+    def add_place(self, place):
+        if isinstance(place, Place):
+            self.places.append(place)
