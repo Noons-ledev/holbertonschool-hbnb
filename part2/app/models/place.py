@@ -6,8 +6,8 @@ Places module for Hbnb project, made by Molly
 
 
 from .basemodel import BaseModel
-from .amenities import Amenity
-from .reviews import Review
+from .amenity import Amenity
+from .review import Review
 
 
 class Place(BaseModel):
@@ -15,7 +15,7 @@ class Place(BaseModel):
     Creation of a new place
     """
     def __init__(self, title, description, price, latitude, longitude, owner):
-        from .users import User
+        from .user import User
         if not isinstance(owner, User):
             raise TypeError("Owner must be user type !")
         if not isinstance(title, str):
@@ -110,7 +110,7 @@ class Place(BaseModel):
 
     @owner.setter
     def owner(self, value):
-        from .users import User
+        from .user import User
         if not isinstance(value, User):
             raise TypeError("Owner must be of type User!")
         self._owner = value

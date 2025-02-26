@@ -4,9 +4,9 @@ Users Models made by Noons
 """
 from .basemodel import BaseModel
 import re
-from .places import Place
-from .reviews import Review
-from .amenities import Amenity
+from .place import Place
+from .review import Review
+from .amenity import Amenity
 
 def validate_email(mail):
     email_regex = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
@@ -28,25 +28,25 @@ def validate_names(name):
 class User(BaseModel):
 
 
-    def __init__(self, first_name, last_name, email, password, isadmin=False):
+    def __init__(self, first_name, last_name, email, isadmin=False):#password for later
         super().__init__()
         self.first_name = validate_names(first_name)
         self.last_name = validate_names(last_name)
         self.is_admin = isadmin
         self.email = validate_email(email)
-        self.password = password
+        #self.password = password for later
         self.places = []
-
+    """
     @property
     def password(self):
         return self.__password
-    
+    PASSWORD HANDLING HERE
     @password.setter
     def password(self, value):
         if len(value) < 8:
             raise ValueError("Password must be at least 8 characters long")
         self.__password = value
-
+    """
     @property
     def is_admin(self):
         return self.__is_admin
@@ -96,3 +96,13 @@ class User(BaseModel):
     def add_place(self, place):
         if isinstance(place, Place):
             self.places.append(place)
+    
+    def to_dict(self):
+        """Returns only the necessary attributes."""
+        return {
+        "id": self.id,
+        "first_name": self.first_name,
+        "last_name": self.last_name,
+        "email": self.email
+        }
+        
