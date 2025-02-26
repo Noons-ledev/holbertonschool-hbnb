@@ -55,8 +55,22 @@ class PlaceList(Resource):
     @api.response(200, 'List of places retrieved successfully')
     def get(self):
         """Retrieve a list of all places"""
-        # Placeholder for logic to return a list of all places
-        pass
+        #  Molly
+        places = facade.get_all_places()
+
+        if not places:
+            return {"message": "No places found"}, 200
+
+        result = []
+        for place in places:
+            result.append({
+                "id": place.id,
+                "title": place.title,
+                "latitude": place.latitude,
+                "longitude": place.longitude
+            })
+
+        return result, 200
 
 @api.route('/<place_id>')
 class PlaceResource(Resource):
@@ -64,8 +78,27 @@ class PlaceResource(Resource):
     @api.response(404, 'Place not found')
     def get(self, place_id):
         """Get place details by ID"""
-        # Placeholder for the logic to retrieve a place by ID, including associated owner and amenities
-        pass
+        # Molly
+        try:
+            place = facade.get_place(place_id)
+            owner_info = {
+                "id": place.owner.id,
+                "first_name": place.owner.first_name,
+                "last_name": place.owner.last_name,
+                "email": place.owner.email
+            }
+            amenities_list = [{"id": a.id, "name": a.name} for a in place.amenities]
+            return {
+                "id": place.id,
+                "title": place.title,
+                "description": place.description,
+                "latitude": place.latitude,
+                "longitude": place.longitude,
+                "owner": owner_info,
+                "amenities": amenities_list
+            }, 200
+        except ValueError:
+            return {"error": "Place not found"}, 404
 
     @api.expect(place_model)
     @api.response(200, 'Place updated successfully')
@@ -74,4 +107,13 @@ class PlaceResource(Resource):
     def put(self, place_id):
         """Update a place's information"""
         # Placeholder for the logic to update a place by ID
-        pass
+        data = api.payload
+
+        if not data:
+            return {"error": "No data provided"}, 400
+
+        try:
+            facade.update_place(place_id, data)
+            return {"message": "Place updated successfully"}, 200
+        except ValueError:
+            return {"error": "Invalid input data"}, 400
