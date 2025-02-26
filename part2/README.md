@@ -1,4 +1,15 @@
-## Structure de répertoire du projet
+# 🏠 Hbnb - README
+
+## 🌍 Project Overview
+
+Hbnb is a collaborative project developed as part of the second trimester at Holberton School in Cenon, C25 class.
+ The goal is to create an Airbnb clone 🏡 to practice real-world software development as if it were a business request in a company. Think of it as training to become the next big startup founder... or at least a bug-fixing master.
+
+## 📁 Project Structure
+
+We choose to follow this structure for our organization :
+
+```
 hbnb/
 ├── app/
 │   ├── __init__.py
@@ -26,21 +37,51 @@ hbnb/
 ├── config.py
 ├── requirements.txt
 ├── README.md
-The directory contains the core application code.app/
-The subdirectory houses the API endpoints, organized by version ().api/v1/
-The subdirectory contains the business logic classes (e.g., , ).models/user.pyplace.py
-The subdirectory is where the Facade pattern is implemented, managing the interaction between layers.services/
-The subdirectory is where the in-memory repository is implemented. This will later be replaced by a database-backed solution using SQL Alchemy.persistence/
-run.py is the entry point for running the Flask application.
-config.py will be used for configuring environment variables and application settings.
-requirements.txt will list all the Python packages needed for the project.
-README.md will contain a brief overview of the project.
-The in-memory repository will handle object storage and validation. It follows a consistent interface that will later be replaced by a database-backed repository.
-## Understanding the Facade Pattern in the HBnB Project
-The Facade pattern is a structural design pattern that provides a simplified interface to a complex system, making it easier for clients to interact with it. In the context of the HBnB project, the Facade pattern plays a crucial role in managing the interactions between the Presentation layer (API) and the Business Logic layer, while also serving as an intermediary that will later connect to the Persistence layer. This article will explore how the Facade pattern is implemented in this part of the project and how it streamlines the overall system architecture.
-Describe the purpose of each directory and file.
-Include instructions on how to install dependencies and run the application.
-Inside repository.py, the in-memory repository and interface will be fully implemented:
-In the subdirectory, create a file where you will define the class. This class will handle communication between the Presentation, Business Logic, and Persistence layers. You will interact with the repositories (like the in-memory repository) through this Class:services/facade.pyHBnBFacade
-The methods in the Facade use placeholders to avoid errors during initial testing. The actual logic will be added in future tasks.
-In the root directory, create the file that will serve as the entry point for running the application:run.py
+```
+
+### 📂 Directory & File Descriptions
+
+- **app/**: Main application directory.
+  - **api/**: API endpoints (because everyone loves a good REST API, right? 🛠️)
+    - **v1/**: Version 1 of the API with resources like users, places, reviews, and amenities.
+  - **models/**: Data models for the application (where the magic happens 🧙‍♂️).
+  - **services/**: Business logic and service layer.
+  - **persistence/**: Handles data storage and retrieval (keeping all the important bits safe 🔒).
+- **run.py**: Entry point for running the application 🚀.
+- **config.py**: Configuration settings for the project (because chaos is fun, but not in coding 🔧).
+- **requirements.txt**: List of dependencies required for the project 📦.
+- **README.md**: Documentation for the project (you're reading it right now! 🧐).
+
+## ▶️ Run the Application
+
+To start the application, execute:
+
+```
+flask
+flask-restx
+```
+Install the dependencies using:
+
+
+```
+pip install -r requirements.txt
+```
+Run the application to ensure everything is set up correctly:
+
+
+```
+python run.py
+```
+
+
+## 🔧 Technologies Used
+
+- Language: Python 3 🐍
+- Framework: Flask
+- API: Flask-RESTx
+
+## 👥 Contributors
+
+- 🦦 Noons-ledev 🦦 : Noah Briet
+- 🐦‍⬛ 🌸 Mollydayne 🌸 🐦‍⬛ : Clarisse Perez
+- Tom Makni
