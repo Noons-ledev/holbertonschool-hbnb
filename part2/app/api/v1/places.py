@@ -4,26 +4,31 @@ from app.services import facade
 api = Namespace('places', description='Place operations')
 
 # Define the models for related entities
-amenity_model = api.model('PlaceAmenity', {
-    'id': fields.String(description='Amenity ID'),
-    'name': fields.String(description='Name of the amenity')
+amenity_model = api.model('Amenity', {
+    'name': fields.String(required=True, description='Name of the amenity')
 })
 
 user_model = api.model('PlaceUser', {
-    'id': fields.String(description='User ID'),
     'first_name': fields.String(description='First name of the owner'),
     'last_name': fields.String(description='Last name of the owner'),
     'email': fields.String(description='Email of the owner')
 })
 
-# Define the place model for input validation and documentation
+review_model = api.model('PlaceReview', {
+    'text': fields.String(description='Text of the review'),
+    'rating': fields.Integer(description='Rating of the place (1-5)'),
+    'user': fields.String(description='ID of the user')
+})
+
 place_model = api.model('Place', {
     'title': fields.String(required=True, description='Title of the place'),
     'description': fields.String(description='Description of the place'),
     'price': fields.Float(required=True, description='Price per night'),
     'latitude': fields.Float(required=True, description='Latitude of the place'),
     'longitude': fields.Float(required=True, description='Longitude of the place'),
-    'owner': fields.String(required=True, description='owner id')
+    'owner': fields.String(required=True, description='ID of the owner'),
+    'amenities': fields.List(fields.Nested(amenity_model), description='List of amenities'),
+    'reviews': fields.List(fields.Nested(review_model), description='List of reviews')
 })
 
 @api.route('/')
@@ -33,12 +38,18 @@ class PlaceList(Resource):
     @api.response(400, 'Invalid input data')
     def post(self):
         """Register a new place"""
-        # Registration of a new place - Molly
+        # Registration of a new place - Molly & Noons
         data = api.payload
-
-        if not data:
+        if not data: 
             return {"error": "No data provided"}, 400
-
+        check = False
+        user_id = data.get('owner')
+        if not user_id:
+            return {"error": "User ID required"}, 400
+        userlist = facade.get_users_list()
+        check = any(user.get("id") == user_id for user in userlist)
+        if not check:
+            return {'Error': 'No valid ID provided'}, 400
         try:
             new_place = facade.create_place(data)
             return {
@@ -48,13 +59,13 @@ class PlaceList(Resource):
                 "latitude": new_place.latitude,
                 "longitude": new_place.longitude
             }, 201
-        except ValueError:
-            return {"error": "Invalid input data"}, 400
+        except Exception as e:
+            return {"error": str(e)}, 400
 
     @api.response(200, 'List of places retrieved successfully')
     def get(self):
         """Retrieve a list of all places"""
-        #  Molly
+        #  Molly 
         places = facade.get_all_places()
 
         if not places:
@@ -96,10 +107,13 @@ class PlaceResource(Resource):
 
         if not data:
             return {"error": "No data provided"}, 400
-
+        if data.get('owner') is not None:
+            return {'error' : 'No owner informations allowed'}
+        if data.get('id') is not None:
+            return {'error': 'No ID allowed in data'}, 400
         try:
             facade.update_place(place_id, data)
             return {"message": "Place updated successfully"}, 200
-        except ValueError:
-            return {"error": "Invalid input data"}, 400
+        except Exception as e:
+            return {"error": str(e)}, 400
     
