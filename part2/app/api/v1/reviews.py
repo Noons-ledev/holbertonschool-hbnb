@@ -20,13 +20,13 @@ class ReviewList(Resource):
         if not data:
             return {"error" : "No data provided"}, 400
         try:
-            new_review = facade.rew_review(data)
+            new_review = facade.create_review(data)
             {
             "id": new_review.id,
             "text": new_review.text,
             "rating": new_review.rating,
-            "user_id": new_review.user_id,
-            "place_id": new_review.place_id
+            "user_id": new_review.user,
+            "place_id": new_review
         }, 201
         except ValueError:
             return {"error": "Invalid input data"}, 400

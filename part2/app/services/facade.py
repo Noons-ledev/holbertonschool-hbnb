@@ -44,7 +44,7 @@ class HBnBFacade:
 
     def get_all_amenities(self):
         list = self.amenity_repo.get_all()
-        amenity_list = [dict(amenity) for amenity in list]
+        amenity_list = [amenity.to_dict() for amenity in list]
         return  amenity_list
 
     def update_amenity(self, amenity_id, amenity_data):
