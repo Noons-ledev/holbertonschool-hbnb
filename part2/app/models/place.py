@@ -16,8 +16,6 @@ class Place(BaseModel):
     """
     def __init__(self, title, description, price, latitude, longitude, owner):
         from .user import User
-        if not isinstance(owner, User):
-            raise TypeError("Owner must be user type !")
         if not isinstance(title, str):
             raise TypeError("Title must be a string!")
         if not isinstance(price, (int, float)):
@@ -110,7 +108,13 @@ class Place(BaseModel):
 
     @owner.setter
     def owner(self, value):
-        from .user import User
-        if not isinstance(value, User):
-            raise TypeError("Owner must be of type User!")
         self._owner = value
+
+    def to_dict(self):
+        """Returns only the necessary attributes."""
+        return {
+        "id": self.id,
+        "title": self.title,
+        "latitude": self.latitude,
+        "longitude": self.longitude
+        }

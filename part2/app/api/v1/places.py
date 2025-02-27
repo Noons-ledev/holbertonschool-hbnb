@@ -23,8 +23,7 @@ place_model = api.model('Place', {
     'price': fields.Float(required=True, description='Price per night'),
     'latitude': fields.Float(required=True, description='Latitude of the place'),
     'longitude': fields.Float(required=True, description='Longitude of the place'),
-    'owner_id': fields.String(required=True, description='ID of the owner'),
-    'amenities': fields.List(fields.String, required=True, description="List of amenities ID's")
+    'owner': fields.String(required=True, description='owner id')
 })
 
 @api.route('/')
@@ -59,18 +58,8 @@ class PlaceList(Resource):
         places = facade.get_all_places()
 
         if not places:
-            return {"message": "No places found"}, 200
-
-        result = []
-        for place in places:
-            result.append({
-                "id": place.id,
-                "title": place.title,
-                "latitude": place.latitude,
-                "longitude": place.longitude
-            })
-
-        return result, 200
+            return {'error': "not found"}, 400
+        return places, 200
 
 @api.route('/<place_id>')
 class PlaceResource(Resource):
@@ -81,12 +70,8 @@ class PlaceResource(Resource):
         # Molly
         try:
             place = facade.get_place(place_id)
-            owner_info = {
-                "id": place.owner.id,
-                "first_name": place.owner.first_name,
-                "last_name": place.owner.last_name,
-                "email": place.owner.email
-            }
+            owner_id = place.owner
+            owner_info = facade.get_user(owner_id)
             amenities_list = [{"id": a.id, "name": a.name} for a in place.amenities]
             return {
                 "id": place.id,
@@ -94,11 +79,11 @@ class PlaceResource(Resource):
                 "description": place.description,
                 "latitude": place.latitude,
                 "longitude": place.longitude,
-                "owner": owner_info,
+                "owner": owner_info.to_dict(),
                 "amenities": amenities_list
             }, 200
-        except ValueError:
-            return {"error": "Place not found"}, 404
+        except Exception as e:
+            return {"error": str(e)}, 404
 
     @api.expect(place_model)
     @api.response(200, 'Place updated successfully')
@@ -117,3 +102,4 @@ class PlaceResource(Resource):
             return {"message": "Place updated successfully"}, 200
         except ValueError:
             return {"error": "Invalid input data"}, 400
+    

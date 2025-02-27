@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 from app.persistence.repository import InMemoryRepository
 from ..models.place import Place
+from ..models.review import Review
+
 
 class HBnBFacade:
     def __init__(self):
@@ -64,8 +66,8 @@ class HBnBFacade:
 
     def get_all_places(self):
         # Molly - retrieve all places
-        list = self.user_repo.get_all()
-        place_list = [dict(place) for place in list]
+        list = self.place_repo.get_all()
+        place_list = [place.to_dict() for place in list]
         return  place_list
 
     def update_place(self, place_id, place_data):
@@ -74,8 +76,10 @@ class HBnBFacade:
         return self.place_repo.get(place_id)
 
     def create_review(self, review_data):
-    # Placeholder for logic to create a review, including validation for user_id, place_id, and rating
-        pass
+    # Molly - logic to create a review, including validation for user_id, place_id, and rating
+        new_review = Review(**review_data)
+        self.review_repo.add(Review)
+        return new_review
 
     def get_review(self, review_id):
         # Placeholder for logic to retrieve a review by ID
