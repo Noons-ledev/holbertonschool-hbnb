@@ -21,15 +21,16 @@ class ReviewList(Resource):
             return {"error" : "No data provided"}, 400
         try:
             new_review = facade.create_review(data)
-            {
+            return { # Molly - Or, return new_review. to_dict(), 201 ?? + in model / user, add a to dict function
             "id": new_review.id,
             "text": new_review.text,
             "rating": new_review.rating,
-            "user_id": new_review.user,
-            "place_id": new_review
+            "user_id": new_review.user_id,
+            "place_id": new_review.place_id
         }, 201
         except ValueError:
             return {"error": "Invalid input data"}, 400
+
     @api.response(200, 'List of reviews retrieved successfully')
     def get(self):
         """Retrieve a list of all reviews"""
@@ -77,24 +78,33 @@ class ReviewResource(Resource):
         if not data:
             return {"error": "No data provided"}, 400
         try:
-            facade.update_review(review_id, data)
+            review, message, status_code = facade.update_review(review_id, data)
+            if status_code == 404:
+                return {"error": "Review not found"}, 404
             return {"message": "Review updated successfully"}, 200
         except ValueError:
             return {"error": "Invalid input data"}, 400
+
     @api.response(200, 'Review deleted successfully')
     @api.response(404, 'Review not found')
     def delete(self, review_id):
         """Delete a review"""
-        # Placeholder for the logic to delete a review
-        pass
+        # Molly -  logic to delete a review
+        review, message, status_code = facade.delete_review(review_id)
+
+        if status_code == 404:
+            return {"error": "Review not found"}, 404
+
+        return {"message": "Review deleted successfully"}, 200
+
 @api.route('/places/<place_id>/reviews')
 class PlaceReviewList(Resource):
     @api.response(200, 'List of reviews for the place retrieved successfully')
     @api.response(404, 'Place not found')
     def get(self, place_id):
         """Get all reviews for a specific place"""
-        # logic to return a list of reviews for a place
+        # Molly -  return a list of reviews for a place
         reviews = facade.get_reviews_by_place(place_id)
         if reviews is None: #Molly if place exist, but as no reviews, do not return 404 but 200 w empty list
-            return {"Error": "place not found"}, 404
+            return {"error": "place not found"}, 404
         return [{"id": review.id, "text": review.text, "rating": review.rating} for review in reviews], 200

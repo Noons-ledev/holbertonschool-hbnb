@@ -116,4 +116,3 @@ class PlaceResource(Resource):
             return {"message": "Place updated successfully"}, 200
         except Exception as e:
             return {"error": str(e)}, 400
-    

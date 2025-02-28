@@ -78,25 +78,27 @@ class HBnBFacade:
     def create_review(self, review_data):
     # Molly - logic to create a review, including validation for user_id, place_id, and rating
         new_review = Review(**review_data)
-        self.review_repo.add(Review)
+        self.review_repo.add(new_review)
         return new_review
 
     def get_review(self, review_id):
-        # Placeholder for logic to retrieve a review by ID
-        pass
+        #  for logic to retrieve a review by ID
+        return self.review_repo.get(review_id)
+
 
     def get_all_reviews(self):
-        # Placeholder for logic to retrieve all reviews
-        pass
+        #  for logic to retrieve all reviews
+        return self.review_repo.get_all()
 
     def get_reviews_by_place(self, place_id):
-        # Placeholder for logic to retrieve all reviews for a specific place
-        pass
+        #  for logic to retrieve all reviews for a specific place
+        return self.review_repo.get_by_attribute('place', place_id)
+
 
     def update_review(self, review_id, review_data):
-        # Placeholder for logic to update a review
-        pass
+        #  for logic to update a review
+        return self.review_repo.update(review_id, review_data)
 
     def delete_review(self, review_id):
-        # Placeholder for logic to delete a review
-        pass
+        #  for logic to delete a review
+        return self.review_repo.delete(review_id)
