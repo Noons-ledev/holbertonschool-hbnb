@@ -27,7 +27,7 @@ class AmenityList(Resource):
     def get(self):
         amenity_list = facade.get_all_amenities()
         if not amenity_list:
-            return {"error": "Bad request"}, 400
+            return [], 200
         return amenity_list
 
 

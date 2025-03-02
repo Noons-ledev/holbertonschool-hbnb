@@ -25,11 +25,12 @@ class UserList(Resource):
         # Simulate email uniqueness check (to be replaced by real validation with persistence)
         existing_user = facade.get_user_by_email(user_data['email'])
         if existing_user:
-            return {'error': 'Email already registered'}, 400
-
-        new_user = facade.create_user(user_data)
-        return new_user.to_dict(), 201
-
+            return {'error': 'Email already registered'}, 409
+        try:
+            new_user = facade.create_user(user_data)
+            return new_user.to_dict(), 201
+        except Exception as e:
+            return {'Error' : str(e)}, 400
     @api.response(200, "OK")
     def get(self):
         """
@@ -37,7 +38,7 @@ class UserList(Resource):
         """
         users_list = facade.get_users_list()
         if not users_list:
-            return {'error': "not found"}, 400
+            return {'message': "no user found"}, 200
         return users_list, 200
 
 @api.route('/<user_id>')
@@ -52,6 +53,7 @@ class UserResource(Resource):
         return user.to_dict(), 200
 
     @api.response(400, "Bad Request")
+    @api.expect(user_model, validate=True)
     def put(self, user_id):
         """
         Update User data
@@ -59,7 +61,17 @@ class UserResource(Resource):
         data = api.payload
         if data.get('id') is not None:
             return{'error': 'Cant change id!'}, 400
-        user = facade.update_user(user_id, data)
-        if not user:
-            return {'error': 'User not found'}, 404
-        return user.to_dict(), 200
+        existing_user = facade.get_user_by_email(data['email'])
+        if existing_user:
+            if user_id != existing_user.id:
+                return {"error": "email is already used."}, 409
+        try:
+            user = facade.update_user(user_id, data)
+            if not user:
+                return {'error': 'User not found'}, 404
+            return user.to_dict(), 200
+        except Exception as e:
+            return  {'error': str(e)}, 400
+        
+        
+        

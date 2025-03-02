@@ -14,7 +14,7 @@ class Place(BaseModel):
     """
     Creation of a new place
     """
-    def __init__(self, title, description, price, latitude, longitude, owner):
+    def __init__(self, title, description, price, latitude, longitude, owner, amenities):
         from .user import User
         if not isinstance(title, str):
             raise TypeError("Title must be a string!")
@@ -32,7 +32,7 @@ class Place(BaseModel):
         self.longitude = longitude
         self.owner = owner
         self.reviews = []
-        self.amenities = []
+        self.amenities = amenities
 
     @property
     def title(self):
@@ -115,6 +115,8 @@ class Place(BaseModel):
         return {
         "id": self.id,
         "title": self.title,
+        "description": self.description, 
+        "price": self.price,
         "latitude": self.latitude,
         "longitude": self.longitude
         }

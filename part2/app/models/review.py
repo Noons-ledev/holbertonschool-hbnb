@@ -19,12 +19,21 @@ class Review(BaseModel):
             raise ValueError("This must be between 1 and 5 stars")
         if text is None:
             raise ValueError("Please enter a text !")
-        if not isinstance(place_id, uuid):
-            raise TypeError("place must be a Place object!")
-        if not isinstance(user_id, uuid):
-            raise TypeError("user must be a User!")
+        if not isinstance(place_id, str):
+            raise TypeError("place_id must be a PlaceID!")
+        if not isinstance(user_id, str):
+            raise TypeError("user_id must be a UserID!")
         super().__init__()
         self.text = text
         self.rating = rating
         self.place_id = place_id
         self.user_id = user_id
+
+    def to_dict(self):
+        return {
+            "id": self.id, 
+            "text": self.text,
+            "rating": self.rating,
+            "place" : self.place_id,
+            "User" : self.user_id
+        }
