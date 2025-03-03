@@ -28,7 +28,13 @@ def validate_names(name):
 class User(BaseModel):
 
 
-    def __init__(self, first_name, last_name, email, isadmin=False):#password for later
+    def __init__(self, first_name=None, last_name=None, email=None, isadmin=False):#password for later
+        if first_name is None:
+            raise ValueError("First name is required")
+        if last_name is None:
+            raise ValueError("Last name is required")
+        if email is None:
+            raise ValueError("Email is required")
         super().__init__()
         self.first_name = validate_names(first_name)
         self.last_name = validate_names(last_name)
