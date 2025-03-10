@@ -1,4 +1,4 @@
-from app.persistence.repository import InMemoryRepository
+from app.persistence.repository import SQLAlchemyRepository
 from app.models.user import User
 from app.models.amenity import Amenity
 from app.models.place import Place
@@ -6,10 +6,10 @@ from app.models.review import Review
 
 class HBnBFacade:
     def __init__(self):
-        self.user_repo = InMemoryRepository()
-        self.amenity_repo = InMemoryRepository()
-        self.place_repo = InMemoryRepository()
-        self.review_repo = InMemoryRepository()
+        self.user_repo = SQLAlchemyRepository(User)
+        self.amenity_repo = SQLAlchemyRepository(Amenity)
+        self.place_repo = SQLAlchemyRepository(Place)
+        self.review_repo = SQLAlchemyRepository(Review)
 
     # USER
     def create_user(self, user_data):
@@ -81,7 +81,7 @@ class HBnBFacade:
             raise KeyError('Invalid input data')
         del review_data['user_id']
         review_data['user'] = user
-        
+
         place = self.place_repo.get(review_data['place_id'])
         if not place:
             raise KeyError('Invalid input data')
@@ -93,7 +93,7 @@ class HBnBFacade:
         user.add_review(review)
         place.add_review(review)
         return review
-        
+
     def get_review(self, review_id):
         return self.review_repo.get(review_id)
 
@@ -111,7 +111,7 @@ class HBnBFacade:
 
     def delete_review(self, review_id):
         review = self.review_repo.get(review_id)
-        
+
         user = self.user_repo.get(review.user.id)
         place = self.place_repo.get(review.place.id)
 
