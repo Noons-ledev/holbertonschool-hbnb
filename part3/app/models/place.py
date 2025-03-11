@@ -1,88 +1,32 @@
+from app import db
 from .basemodel import BaseModel
-from .user import User
 
 class Place(BaseModel):
-    def __init__(self, title, price, latitude, longitude, owner, description=None):
-        super().__init__()
-        self.title = title
-        self.description = description
-        self.price = price
-        self.latitude = latitude
-        self.longitude = longitude
-        self.owner = owner
-        self.reviews = []  # List to store related reviews
-        self.amenities = []  # List to store related amenities
+    """
+    Place model mapping
+    """
+# Molly : Wip 1/2.
+# This is my anchor : when u see this, search for the 2/2. This is start and end of my work in progress.
 
-    @property
-    def title(self):
-        return self.__title
-    
-    @title.setter
-    def title(self, value):
-        if not value:
-            raise ValueError("Title cannot be empty")
-        if not isinstance(value, str):
-            raise TypeError("Title must be a string")
-        super().is_max_length('title', value, 100)
-        self.__title = value
+    __tablename__ = 'places'
 
-    @property
-    def price(self):
-        return self.__price
-    
-    @price.setter
-    def price(self, value):
-        if not isinstance(value, float) and not isinstance(value, int):
-            raise TypeError("Price must be a float")
-        if value < 0:
-            raise ValueError("Price must be positive.")
-        self.__price = value
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    price = db.Column(db.Float, nullable=False)
+    latitude = db.Column(db.Float, nullable=False)
+    longitude = db.Column(db.Float, nullable=False)
 
-    @property
-    def latitude(self):
-        return self.__latitude
-    
-    @latitude.setter
-    def latitude(self, value):
-        if not isinstance(value, float):
-            raise TypeError("Latitude must be a float")
-        super().is_between("latitude", value, -90, 90)
-        self.__latitude = value
-    
-    @property
-    def longitude(self):
-        return self.__longitude
-    
-    @longitude.setter
-    def longitude(self, value):
-        if not isinstance(value, float):
-            raise TypeError("Longitude must be a float")
-        super().is_between("longitude", value, -180, 180)
-        self.__longitude = value
+    # Foreign Key for the owner to link to place
+    owner_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
 
-    @property
-    def owner(self):
-        return self.__owner
-    
-    @owner.setter
-    def owner(self, value):
-        if not isinstance(value, User):
-            raise TypeError("Owner must be a user instance")
-        self.__owner = value
-
-    def add_review(self, review):
-        """Add a review to the place."""
-        self.reviews.append(review)
-    
-    def delete_review(self, review):
-        """Add an amenity to the place."""
-        self.reviews.remove(review)
-
-    def add_amenity(self, amenity):
-        """Add an amenity to the place."""
-        self.amenities.append(amenity)
+    # Relationships between other models
+    owner = db.relationship('User', back_populates='places')
+    reviews = db.relationship('Review', back_populates='place', lazy='dynamic')
 
     def to_dict(self):
+        """
+        Convert place instance to dictionary format
+        """
         return {
             'id': self.id,
             'title': self.title,
@@ -90,10 +34,13 @@ class Place(BaseModel):
             'price': self.price,
             'latitude': self.latitude,
             'longitude': self.longitude,
-            'owner_id': self.owner.id
+            'owner_id': self.owner_id
         }
-    
+
     def to_dict_list(self):
+        """
+        Convert place with relationships into a dictionary format
+        """
         return {
             'id': self.id,
             'title': self.title,
@@ -102,6 +49,6 @@ class Place(BaseModel):
             'latitude': self.latitude,
             'longitude': self.longitude,
             'owner': self.owner.to_dict(),
-            'amenities': self.amenities,
-            'reviews': self.reviews
+            'reviews': [review.to_dict() for review in self.reviews.all()]
         }
+# Molly : Wip 2/2.

@@ -1,28 +1,31 @@
+from app import db
 from .basemodel import BaseModel
 
+#Molly : table needed to link place 'n amenity and avoid multiple data duplications
+place_amenities = db.Table(
+    'place_amenities',
+    db.Column('place_id', db.String(36), db.ForeignKey('places.id'), primary_key=True),
+    db.Column('amenity_id', db.String(36), db.ForeignKey('amenities.id'), primary_key=True)
+)
+
 class Amenity(BaseModel):
-	def __init__(self, name):
-		super().__init__()	
-		self.name = name
+    """
+    Amenity mapping to db
+    """
 
-	@property
-	def name(self):
-		return self.__name
+# Molly : Wip 1/2.
+# This is my anchor : when u see this, search for the 2/2. This is start and end of my work in progress.
 
-	@name.setter
-	def name(self, value):
-		if not isinstance(value, str):
-			raise TypeError("Name must be a string")
-		if not value:
-			raise ValueError("Name cannot be empty")
-		super().is_max_length('Name', value, 50)
-		self.__name = value
+    __tablename__ = 'amenities'
 
-	def update(self, data):
-		return super().update(data)
-	
-	def to_dict(self):
-		return {
-			'id': self.id,
-			'name': self.name
-		}
+    name = db.Column(db.String(50), nullable=False, unique=True)  # Unique Amenity Name
+
+    # Many-to-Many Relationship with Place
+    places = db.relationship('Place', secondary=place_amenities, back_populates='amenities')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name
+        }
+# Molly : Wip 2/2.
