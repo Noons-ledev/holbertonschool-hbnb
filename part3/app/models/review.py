@@ -1,63 +1,35 @@
+from app import db
 from .basemodel import BaseModel
-from .place import Place
-from .user import User
 
 class Review(BaseModel):
-	def __init__(self, text, rating, place, user):
-		super().__init__()
-		self.text = text
-		self.rating = rating
-		self.place = place
-		self.user = user
+    """
+    Review model mapped to the 'reviews' table in the database
+    """
 
-	@property
-	def text(self):
-		return self.__text
+# Molly : Wip 1/2.
+# This is my anchor : when u see this, search for the 2/2. This is start and end of my work in progress.
 
-	@text.setter
-	def text(self, value):
-		if not value:
-			raise ValueError("Text cannot be empty")
-		if not isinstance(value, str):
-			raise TypeError("Text must be a string")
-		self.__text = value
+    __tablename__ = 'reviews'
 
-	@property
-	def rating(self):
-		return self.__rating
+    text = db.Column(db.String(500), nullable=False)  # Review content (max 500 chars)
+    rating = db.Column(db.Integer, nullable=False)  # Rating from 1 to 5
 
-	@rating.setter
-	def rating(self, value):
-		if not isinstance(value, int):
-			raise TypeError("Rating must be an integer")
-		super().is_between('Rating', value, 1, 6)
-		self.__rating = value
+    # Foreign Keys : each review is linked to existing place, and is user
 
-	@property
-	def place(self):
-		return self.__place
+    place_id = db.Column(db.String(36), db.ForeignKey('places.id'), nullable=False)
+    user_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
 
-	@place.setter
-	def place(self, value):
-		if not isinstance(value, Place):
-			raise TypeError("Place must be a place instance")
-		self.__place = value
+    # Relationships between reviews and other models
 
-	@property
-	def user(self):
-		return self.__user
+    place = db.relationship('Place', back_populates='reviews')
+    user = db.relationship('User', back_populates='reviews')
 
-	@user.setter
-	def user(self, value):
-		if not isinstance(value, User):
-			raise TypeError("User must be a user instance")
-		self.__user = value
-
-	def to_dict(self):
-		return {
-			'id': self.id,
-			'text': self.text,
-			'rating': self.rating,
-			'place_id': self.place.id,
-			'user_id': self.user.id
-		}
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'text': self.text,
+            'rating': self.rating,
+            'place_id': self.place_id,
+            'user_id': self.user_id
+        }
+# Molly : Wip 2/2.

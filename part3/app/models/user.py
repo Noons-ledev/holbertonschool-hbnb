@@ -3,6 +3,9 @@ from .basemodel import BaseModel
 import re
 
 class User(BaseModel):
+    """
+    User  model mapping
+    """
 
 # Molly : Wip 1/2.
 # This is my anchor : when u see this, search for the 2/2. This is start and end of my work in progress.
