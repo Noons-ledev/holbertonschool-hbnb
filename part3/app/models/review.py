@@ -9,11 +9,11 @@ class Review(BaseModel):
 		self.rating = rating
 		self.place = place
 		self.user = user
-	
+
 	@property
 	def text(self):
 		return self.__text
-	
+
 	@text.setter
 	def text(self, value):
 		if not value:
@@ -25,7 +25,7 @@ class Review(BaseModel):
 	@property
 	def rating(self):
 		return self.__rating
-	
+
 	@rating.setter
 	def rating(self, value):
 		if not isinstance(value, int):
@@ -36,7 +36,7 @@ class Review(BaseModel):
 	@property
 	def place(self):
 		return self.__place
-	
+
 	@place.setter
 	def place(self, value):
 		if not isinstance(value, Place):
@@ -46,7 +46,7 @@ class Review(BaseModel):
 	@property
 	def user(self):
 		return self.__user
-	
+
 	@user.setter
 	def user(self, value):
 		if not isinstance(value, User):
