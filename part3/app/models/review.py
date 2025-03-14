@@ -21,7 +21,7 @@ class Review(BaseModel):
 
     # Relationships between reviews and other models
 
-    place = db.relationship('Place', back_populates='reviews')
+    place = db.relationship('Place', back_populates='reviews', foreign_keys='Review.place_id')
     user = db.relationship('User', back_populates='reviews')
 
     def to_dict(self):

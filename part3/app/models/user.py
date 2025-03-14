@@ -15,7 +15,7 @@ class User(BaseModel):
     _first_name = db.Column("first_name", db.String(50), nullable=False)
     _last_name = db.Column("last_name", db.String(50), nullable=False)
     _email = db.Column("email", db.String(120), nullable=False, unique=True)
-    _password = db.Column("password", db.String(128), nullable=False)
+    _password = db.Column("password", db.String(128))  #Remettre nullable=False, a la fin des tests.
     _is_admin = db.Column("is_admin", db.Boolean, default=False)
 
 #Molly : password handling
@@ -34,41 +34,43 @@ class User(BaseModel):
 
 # Molly's note : need to implement db.relationship  in models to, for each
 
-    reviews = db.relationship('Review', back_populates='user', lazy='dynamic') #one user can write multiple reviews
-    places = db.relationship('Place', back_populates='owner', lazy='dynamic') #one user can own multiple places
+    reviews = db.relationship('Review', back_populates='user') #one user can write multiple reviews
+    places = db.relationship('Place', back_populates='owner') #one user can own multiple places
 
 # First name
 
     @property
     def first_name(self):
-        return self.__first_name
+        return self._first_name
 
     @first_name.setter
     def first_name(self, value):
         if not isinstance(value, str):
             raise TypeError("First name must be a string")
-        super().is_max_length('First name', value, 50)
-        self.__first_name = value
+        if len(value) > 50:
+            raise ValueError("First name must be at most 50 characters")
+        self._first_name = value
 
 # Laste name
 
     @property
     def last_name(self):
-        return self.__last_name
+        return self._last_name
 
     @last_name.setter
     def last_name(self, value):
         if not isinstance(value, str):
             raise TypeError("Last name must be a string")
-        super().is_max_length('Last name', value, 50)
-        self.__last_name = value
+        if len(value) > 50:
+            raise ValueError("Last name must be at most 50 characters")
+        self._last_name = value
 
 # Mail
 # Some changes : SQLAlchemy handle "unicity", every data must be unique. Impossible to have 2 account with the same mail
 
     @property
     def email(self):
-        return self.__email
+        return self._email
 
     @email.setter
     def email(self, value):
@@ -82,13 +84,13 @@ class User(BaseModel):
 
     @property
     def is_admin(self):
-        return self.__is_admin
+        return self._is_admin
 
     @is_admin.setter
     def is_admin(self, value):
         if not isinstance(value, bool):
             raise TypeError("Is Admin must be a boolean")
-        self.__is_admin = value
+        self._is_admin = value
 
 # Convert to dictionnary
 

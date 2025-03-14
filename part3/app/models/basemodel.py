@@ -1,16 +1,17 @@
 from app import db
+from flask_sqlalchemy import SQLAlchemy
 import uuid
 from datetime import datetime
 from sqlalchemy.sql import func
 
 
-class BaseModel:
-    def __init__(self):
-        __abstract__ = True
+class BaseModel(db.Model):
+    __abstract__ = True
 
-        id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-        created_at = db.Column(db.DateTime, default=func.now())
-        updated_at = db.Column(db.DateTime, default=func.now(), onupdate=func.now())
+
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    created_at = db.Column(db.DateTime, default=func.now())
+    updated_at = db.Column(db.DateTime, default=func.now(), onupdate=func.now())
 
         #Molly : utcnow isnt used naymore. We could replace it by func.now, sqlalchemy will handle everything
 
