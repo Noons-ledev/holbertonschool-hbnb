@@ -1,31 +1,32 @@
+from .baseclass import BaseModel
 from app import db
-from .basemodel import BaseModel
-
-#Molly : table needed to link place 'n amenity and avoid multiple data duplications
-place_amenities = db.Table(
-    'place_amenities',
-    db.Column('place_id', db.String(36), db.ForeignKey('places.id'), primary_key=True),
-    db.Column('amenity_id', db.String(36), db.ForeignKey('amenities.id'), primary_key=True)
-)
+from.amenity_place import amenity_place
 
 class Amenity(BaseModel):
-    """
-    Amenity mapping to db
-    """
+	__tablename__ = "amenities"
 
-# Molly : Wip 1/2.
-# This is my anchor : when u see this, search for the 2/2. This is start and end of my work in progress.
+	name = db.Column(db.String(100), nullable=False)
+	
+places = db.relationship('Place', secondary=amenity_place, back_populates='amenities')
 
-    __tablename__ = 'amenities'
+@property
+def name(self):
+		return self._name
 
-    name = db.Column(db.String(50), nullable=False, unique=True)  # Unique Amenity Name
+@name.setter
+def name(self, value):
+    if not isinstance(value, str):
+        raise TypeError("Name must be a string")
+    if not value:
+        raise ValueError("Name cannot be empty")
+    super().is_max_length('Name', value, 50)
+    self._name = value
 
-    # Many-to-Many Relationship with Place
-    places = db.relationship('Place', secondary=place_amenities, back_populates='amenities')
+def update(self, data):
+    return super().update(data)
 
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'name': self.name
-        }
-# Molly : Wip 2/2.
+def to_dict(self):
+    return {
+        'id': self.id,
+        'name': self._name
+    }

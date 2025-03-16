@@ -1,35 +1,68 @@
+from sqlalchemy import Table, Column, Integer, ForeignKey
+from sqlalchemy.orm import relationship
+from .baseclass import BaseModel
+from .place import Place
+from .user import User
 from app import db
-from .basemodel import BaseModel
 
 class Review(BaseModel):
-    """
-    Review model mapped to the 'reviews' table in the database
-    """
+	__tablename__ = "review"
 
-# Molly : Wip 1/2.
-# This is my anchor : when u see this, search for the 2/2. This is start and end of my work in progress.
+	text = db.Column(db.String(100), nullable=False)
+	rating = db.Column(db.Integer, nullable=False)
+	_place = db.Column(db.String(36), db.ForeignKey('place.id', ondelete="CASCADE"), nullable=False)
+	_user = db.Column(db.String(36), db.ForeignKey('user.id', ondelete="CASCADE"), nullable=False)
 
-    __tablename__ = 'reviews'
 
-    text = db.Column(db.String(500), nullable=False)  # Review content (max 500 chars)
-    rating = db.Column(db.Integer, nullable=False)  # Rating from 1 to 5
+	@property
+	def text(self):
+		return self._text
+	
+	@text.setter
+	def text(self, value):
+		if not value:
+			raise ValueError("Text cannot be empty")
+		if not isinstance(value, str):
+			raise TypeError("Text must be a string")
+		self._text = value
 
-    # Foreign Keys : each review is linked to existing place, and is user
+	@property
+	def user(self):
+		return self._user
+	
+	@user.setter
+	def user(self, value):
+		if not isinstance(value, User):
+			raise TypeError("User must be a user instance")
+		self._user = value
 
-    place_id = db.Column(db.String(36), db.ForeignKey('places.id'), nullable=False)
-    user_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
+	@property
+	def rating(self):
+		return self._rating
+	
+	@rating.setter
+	def rating(self, value):
+		if not isinstance(value, int):
+			raise TypeError("Rating must be an integer")
+		super().is_between('Rating', value, 1, 6)
+		self._rating = value
 
-    # Relationships between reviews and other models
+	@property
+	def place(self):
+		return self._place
+	
+	@place.setter
+	def place(self, value):
+		if not isinstance(value, Place):
+			raise TypeError("Place must be a place instance")
+		self._place = value
 
-    place = db.relationship('Place', back_populates='reviews', foreign_keys='Review.place_id')
-    user = db.relationship('User', back_populates='reviews')
 
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'text': self.text,
-            'rating': self.rating,
-            'place_id': self.place_id,
-            'user_id': self.user_id
-        }
-# Molly : Wip 2/2.
+	def to_dict(self):
+		return {
+			'id': self.id,
+			'text': self._text,
+			'rating': self._rating,
+			'place_id': self._place.id,
+			'user_id': self._user.id
+		}
