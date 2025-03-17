@@ -59,7 +59,7 @@ class UserResource(Resource):
     @jwt_required()
     def put(self, user_id):
         """Update user information"""
-        current_user_id = get_jwt_identity()['id']  # Récupère l'ID de l'utilisateur
+        current_user_id = get_jwt_identity()
         if current_user_id != user_id:
             return {'error': 'Unauthorized action'}, 403
         user_data = api.payload        
