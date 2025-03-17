@@ -1,7 +1,7 @@
 from app import db
 from .basemodel import BaseModel
 from sqlalchemy.orm import validates
-
+#SQLAlchemy reviews table implementation
 class Review(BaseModel):
     __tablename__ = 'reviews'
 

@@ -4,7 +4,7 @@ from .basemodel import BaseModel
 import re
 from sqlalchemy.orm import validates
 
-
+#SQLAlchemy users table implementation
 class User(BaseModel):
     __tablename__ = 'users'
 

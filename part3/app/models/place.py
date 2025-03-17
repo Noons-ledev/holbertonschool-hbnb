@@ -4,7 +4,7 @@ from app.models.review import Review
 from app.models.amenity import Amenity
 from sqlalchemy.orm import validates
 from sqlalchemy.orm import relationship
-
+#SQLAlchemy places model implementation
 class Place(BaseModel):
     __tablename__ = 'places'
 

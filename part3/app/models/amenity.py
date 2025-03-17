@@ -1,7 +1,7 @@
 from sqlalchemy.orm import validates
 from app import db
 from .basemodel import BaseModel
-
+#SQLAlch Amenity model implementation
 class Amenity(BaseModel):
     __tablename__ = 'amenities'
 
