@@ -1,32 +1,28 @@
-from .baseclass import BaseModel
+from sqlalchemy.orm import validates
 from app import db
-from.amenity_place import amenity_place
+from .basemodel import BaseModel
 
 class Amenity(BaseModel):
-	__tablename__ = "amenities"
+    __tablename__ = 'amenities'
 
-	name = db.Column(db.String(100), nullable=False)
-	
-places = db.relationship('Place', secondary=amenity_place, back_populates='amenities')
+    name = db.Column(db.String(50), nullable=False, unique=True)
 
-@property
-def name(self):
-		return self._name
+    @validates('name')
+    def validate_name(self, key, value):
+        """Empêche un nom trop long"""
+        if len(value) > 50:
+            raise ValueError("Name must be at most 50 characters")
+        return value
 
-@name.setter
-def name(self, value):
-    if not isinstance(value, str):
-        raise TypeError("Name must be a string")
-    if not value:
-        raise ValueError("Name cannot be empty")
-    super().is_max_length('Name', value, 50)
-    self._name = value
+    def update(self, data):
+        """Mise à jour des données de l'amenity"""
+        for key, value in data.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
 
-def update(self, data):
-    return super().update(data)
-
-def to_dict(self):
-    return {
-        'id': self.id,
-        'name': self._name
-    }
+    def to_dict(self):
+        """Convert Amenity object to dictionary."""
+        return {
+            'id': self.id,
+            'name': self.name
+        }
