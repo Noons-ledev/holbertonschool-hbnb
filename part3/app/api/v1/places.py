@@ -40,13 +40,14 @@ class PlaceList(Resource):
         current_user_id = get_jwt_identity()
         place_data = api.payload
         # We hardcode the id with the jwt to make sure it's ok even if someone give wrong credentials (owner_id)
-        place_data['owner'] = current_user_id
+        place_data['owner_id'] = current_user_id
 
-        user = facade.user_repo.get_by_attribute('id', place_data['owner']['id'])
+        user = facade.get_user(current_user_id)
         if not user:
             return {'error': 'Invalid input data'}, 400
         try:
             new_place = facade.create_place(place_data)
+            new_place.owner = user
             return new_place.to_dict(), 201
         except Exception as e:
             return {'error': str(e)}, 400

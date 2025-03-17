@@ -81,8 +81,9 @@ class HBnBFacade:
         user = self.user_repository.get(place_data['owner_id'])
         if not user:
             raise ValueError("Owner not found")
+        place_data.pop('owner_id', None)
 
-        place = Place(**place_data)
+        place = Place(**place_data, owner=user)
         db.session.add(place)
         db.session.commit()
         return place
