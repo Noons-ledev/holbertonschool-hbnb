@@ -1,12 +1,11 @@
-from app import db, bcrypt
-from app import db, bcrypt
+from app import bcrypt, db
 from .basemodel import BaseModel
 import re
 from sqlalchemy.orm import validates
 
-#SQLAlchemy users table implementation
 class User(BaseModel):
     __tablename__ = 'users'
+    emails = set()
 
     first_name = db.Column(db.String(50), nullable=False)
     last_name = db.Column(db.String(50), nullable=False)
@@ -14,57 +13,64 @@ class User(BaseModel):
     password = db.Column(db.String(128), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
 
-    def verify_password(self, password):
-        """Verify if the given password matches the stored hash."""
-        """Verifies if the provided password matches the hashed password."""
-        return bcrypt.check_password_hash(self.password, password)
+    @validates('first_name', 'last_name')
+    def validate_first_name(self, key, value):
+        if not isinstance(value, str):
+            raise TypeError("First name must be a string")
+        if len(value) > 50:
+            raise ValueError("First name must be less than or equal to 50 characters")
+        return value
 
     @validates('email')
-    def validate_email(self, key, email):
-        """Validate the email format before storing it."""
-        if not isinstance(email, str):
-            raise TypeError("Email must be a string")
-        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
-            raise ValueError("Invalid email format")
-        return email
-
-    @validates('first_name', 'last_name')
-    def validate_name(self, key, value):
-        """Validate the first name and last name length before storing."""
+    def validate_email(self, key, value):
         if not isinstance(value, str):
-            raise TypeError(f"{key.replace('_', ' ').title()} must be a string")
-        if len(value) > 50:
-            raise ValueError(f"{key.replace('_', ' ').title()} must be at most 50 characters")
+            raise TypeError("Email must be a string")
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", value):
+            raise ValueError("Invalid email format")
+        if value in User.emails:
+            raise ValueError("Email already exists")
+        if hasattr(self, "_User__email"):
+            User.emails.discard(self.__email)
+        User.emails.add(value)
         return value
+
+    @validates('password')
+    def validate_password(self, key, value):
+        if not isinstance(value, str):
+            raise TypeError("Password must be a string")
+        if len(value) < 8:
+            raise ValueError("Password must be at least 8 characters long")
+        return self.hash_password(value)
+
+    @validates('is_admin')
+    def validate_is_admin(self, key, value):
+        if not isinstance(value, bool):
+            raise TypeError("Is Admin must be a boolean")
+        return value
+
     def hash_password(self, password):
         """Hashes the password before storing it."""
-        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
+        return bcrypt.generate_password_hash(password).decode('utf-8')
+    
+    def verify_password(self, password):
+        return bcrypt.check_password_hash(self.password, password)
 
-    @validates('email')
-    def validate_email(self, key, email):
-        """Validate the email format before storing it."""
-        if not isinstance(email, str):
-            raise TypeError("Email must be a string")
-        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
-            raise ValueError("Invalid email format")
-        return email
+    def add_place(self, place):
+        """Add an amenity to the place."""
+        self.places.append(place)
 
-    @validates('first_name', 'last_name')
-    def validate_name(self, key, value):
-        """Validate the first name and last name length before storing."""
-        if not isinstance(value, str):
-            raise TypeError(f"{key.replace('_', ' ').title()} must be a string")
-        if len(value) > 50:
-            raise ValueError(f"{key.replace('_', ' ').title()} must be at most 50 characters")
-        return value
+    def add_review(self, review):
+        """Add an amenity to the place."""
+        self.reviews.append(review)
+
+    def delete_review(self, review):
+        """Add an amenity to the place."""
+        self.reviews.remove(review)
 
     def to_dict(self):
-        """Convert the User object to a dictionary."""
-        """Convert the User object to a dictionary."""
         return {
             'id': self.id,
             'first_name': self.first_name,
             'last_name': self.last_name,
-            'email': self.email,
-            'is_admin': self.is_admin
+            'email': self.email
         }

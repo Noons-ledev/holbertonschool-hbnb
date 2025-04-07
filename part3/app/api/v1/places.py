@@ -1,6 +1,6 @@
 from flask_restx import Namespace, Resource, fields
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from app.services import facade
-from flask_jwt_extended import jwt_required, get_jwt_identity
 
 api = Namespace('places', description='Place operations')
 
@@ -24,9 +24,7 @@ place_model = api.model('Place', {
     'price': fields.Float(required=True, description='Price per night'),
     'latitude': fields.Float(required=True, description='Latitude of the place'),
     'longitude': fields.Float(required=True, description='Longitude of the place'),
-    'owner_id': fields.String(required=True, description='ID of the owner'),
-    'owner': fields.Nested(user_model, description='Owner details'),
-    'amenities': fields.List(fields.String, required=True, description="List of amenities ID's")
+    'amenities': fields.List(fields.String, description="List of amenities ID's")
 })
 
 @api.route('/')
@@ -34,23 +32,19 @@ class PlaceList(Resource):
     @api.expect(place_model)
     @api.response(201, 'Place successfully created')
     @api.response(400, 'Invalid input data')
+    @api.response(401, 'Unauthorized')
+    @api.doc(security='apikey')
     @jwt_required()
     def post(self):
         """Register a new place"""
-        current_user_id = get_jwt_identity()
         place_data = api.payload
-        # We hardcode the id with the jwt to make sure it's ok even if someone give wrong credentials (owner_id)
-        place_data['owner_id'] = current_user_id
+        owner = get_jwt_identity()
 
-        user = facade.get_user(current_user_id)
-        if not user:
-            return {'error': 'Invalid input data'}, 400
         try:
-            new_place = facade.create_place(place_data)
-            new_place.owner = user
+            new_place = facade.create_place(place_data, owner)
             return new_place.to_dict(), 201
         except Exception as e:
-            return {'error': str(e)}, 400
+            return {'error': str(e).strip("'")}, 400
 
     @api.response(200, 'List of places retrieved successfully')
     def get(self):
@@ -73,27 +67,46 @@ class PlaceResource(Resource):
     @api.response(200, 'Place updated successfully')
     @api.response(404, 'Place not found')
     @api.response(400, 'Invalid input data')
-    @api.response(403, 'Unauthorized')
+    @api.response(401, 'Unauthorized')
+    @api.response(403, 'Forbidden')
+    @api.doc(security='apikey')
     @jwt_required()
     def put(self, place_id):
         """Update a place's information"""
-        current_user = get_jwt_identity()
         place_data = api.payload
-
+        current_user = get_jwt_identity()
         place = facade.get_place(place_id)
-
+        admin = get_jwt()['is_admin']
         if not place:
             return {'error': 'Place not found'}, 404
-        
-        # Checks for the real place owner
-        if place.owner != current_user['id']:
-            return {'error': 'Unauthorized action!'}, 403
-        
+        if place.owner.id != current_user and not admin:
+            return {'error': 'Forbidden'}, 403
         try:
-            facade.update_place(place_id, place_data)
-            return {'message': 'Place updated successfully'}, 200
+            place = facade.update_place(place_id, place_data)
+            return place.to_dict(), 200
         except Exception as e:
-            return {'error': str(e)}, 400
+            return {'error': str(e).strip("'")}, 400
+    
+    @api.response(200, 'Place deleted successfully')
+    @api.response(404, 'Place not found')
+    @api.response(401, 'Unauthorized')
+    @api.response(403, 'Forbidden')
+    @api.doc(security='apikey')
+    @jwt_required()
+    def delete(self, place_id):
+        """Update a place's information"""
+        current_user = get_jwt_identity()
+        place = facade.get_place(place_id)
+        admin = get_jwt()['is_admin']
+        if not place:
+            return {'error': 'Place not found'}, 404
+        if place.owner.id != current_user and not admin:
+            return {'error': 'Forbidden'}, 403
+        try:
+            place = facade.delete_place(place_id)
+            return {'message': 'Place deleted successfully'}, 200
+        except Exception as e:
+            return {'error': str(e).strip("'")}, 400
 
 @api.route('/<place_id>/amenities')
 class PlaceAmenities(Resource):

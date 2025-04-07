@@ -1,28 +1,24 @@
-from sqlalchemy.orm import validates
-from app import db
 from .basemodel import BaseModel
-#SQLAlch Amenity model implementation
+from app import db
+from sqlalchemy.orm import validates
+
 class Amenity(BaseModel):
-    __tablename__ = 'amenities'
+	__tablename__ = 'amenities'
 
-    name = db.Column(db.String(50), nullable=False, unique=True)
+	name = db.Column(db.String(50), nullable=False, unique=True)
 
-    @validates('name')
-    def validate_name(self, key, value):
-        """Empêche un nom trop long"""
-        if len(value) > 50:
-            raise ValueError("Name must be at most 50 characters")
-        return value
-
-    def update(self, data):
-        """Mise à jour des données de l'amenity"""
-        for key, value in data.items():
-            if hasattr(self, key):
-                setattr(self, key, value)
-
-    def to_dict(self):
-        """Convert Amenity object to dictionary."""
-        return {
-            'id': self.id,
-            'name': self.name
-        }
+	@validates('name')
+	def validate_name(self, key, value):
+		if not isinstance(value, str):
+			raise TypeError("Name must be a string")
+		if not value:
+			raise ValueError("Name cannot be empty")
+		if len(value) > 50:
+			raise ValueError("Name must be less than or equal to 50 characters")
+		return value
+	
+	def to_dict(self):
+		return {
+			'id': self.id,
+			'name': self.name
+		}

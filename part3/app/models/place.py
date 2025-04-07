@@ -1,84 +1,73 @@
-from app import db
 from .basemodel import BaseModel
-from app.models.review import Review
-from app.models.amenity import Amenity
+from app import db
 from sqlalchemy.orm import validates
-from sqlalchemy.orm import relationship
-#SQLAlchemy places model implementation
+
 class Place(BaseModel):
     __tablename__ = 'places'
 
-    title = db.Column(db.String(255), nullable=False)
-    description = db.Column(db.Text, nullable=True)
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(500), nullable=True)
     price = db.Column(db.Float, nullable=False)
     latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
-    owner_id = db.Column(db.String(36), db.ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
+    user_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
+    amenities = db.relationship('Amenity', secondary='amenities_places', backref='places', lazy='dynamic')
 
-    owner = db.relationship("User", backref="places")
-    amenities = db.relationship("Amenity", secondary="place_amenity", backref="places")
+    owner = db.relationship('User', backref='places', lazy='select')
+
+    @validates('title')
+    def validate_title(self, key, value):
+        if not isinstance(value, str):
+            raise TypeError("Title must be a string")
+        if 10 < len(value) > 100:
+            raise ValueError("Title must be between 10 and 100 characters")
+        return value
     
-    reviews = db.relationship(
-        "Review",
-        back_populates="place",
-        cascade="all, delete-orphan",
-        primaryjoin="Place.id == Review.place_id"
-    )
-
+    @validates('description')
+    def validate_description(self, key, value):
+        if not isinstance(value, str):
+            raise TypeError("Description must be a string")
+        if len(value) > 500:
+            raise ValueError("Description must be less than or equal to 500 characters")
+        return value
+    
     @validates('price')
     def validate_price(self, key, value):
-        """Empêche d'avoir un prix négatif"""
-        if value < 0:
-            raise ValueError("Price must be a positive number")
+        if not isinstance(value, float) and not isinstance(value, int):
+            raise TypeError("Price must be a float")
+        if value <= 0:
+            raise ValueError("Price must be positive.")
         return value
-
+    
     @validates('latitude')
     def validate_latitude(self, key, value):
-        """Empêche une latitude hors des valeurs acceptables (-90 à 90)"""
-        if not (-90 <= value <= 90):
-            raise ValueError("Latitude must be between -90 and 90")
+        if not isinstance(value, float):
+            raise TypeError("Latitude must be a float")
+        if not -90 <= value <= 90:
+            raise ValueError("Latitude must be between -90 and 90.")
         return value
-
+    
     @validates('longitude')
     def validate_longitude(self, key, value):
-        """Empêche une longitude hors des valeurs acceptables (-180 à 180)"""
-        if not (-180 <= value <= 180):
-            raise ValueError("Longitude must be between -180 and 180")
+        if not isinstance(value, float):
+            raise TypeError("Longitude must be a float")
+        if not -180 <= value <= 180:
+            raise ValueError("Longitude must be between -180 and 180.")
         return value
 
     def add_review(self, review):
-        """Ajoute une review au lieu sans l'imposer en base de données."""
-        if not isinstance(review, Review):
-            raise TypeError("Expected a Review object")
-
-        session = db.session.object_session(self) or db.session
-
-        if review not in session:
-            session.add(review)
-            session.flush()
-
-        with db.session.no_autoflush:
-            if review not in self.reviews:
-                self.reviews.append(review)
-
+        """Add a review to the place."""
+        self.reviews.append(review)
+    
+    def delete_review(self, review):
+        """Add an amenity to the place."""
+        self.reviews.remove(review)
 
     def add_amenity(self, amenity):
-        """Ajoute une amenity au lieu sans l'imposer en base de données."""
-        if not isinstance(amenity, Amenity):
-            raise TypeError("Expected an Amenity object")
-
-        session = db.session.object_session(self) or db.session
-
-        with db.session.no_autoflush:
-            if amenity not in self.amenities:
-                if amenity not in session:
-                    session.add(amenity)
-                    session.flush()
-                self.amenities.append(amenity)
-
+        """Add an amenity to the place."""
+        self.amenities.append(amenity)
 
     def to_dict(self):
-        """Convert Place object to dictionary."""
         return {
             'id': self.id,
             'title': self.title,
@@ -86,11 +75,10 @@ class Place(BaseModel):
             'price': self.price,
             'latitude': self.latitude,
             'longitude': self.longitude,
-            'owner_id': self.owner_id
+            'owner_id': self.owner.id
         }
-
+    
     def to_dict_list(self):
-        """Convert Place object including owner, amenities, and reviews."""
         return {
             'id': self.id,
             'title': self.title,
@@ -99,6 +87,6 @@ class Place(BaseModel):
             'latitude': self.latitude,
             'longitude': self.longitude,
             'owner': self.owner.to_dict(),
-            'amenities': [amenity.to_dict() for amenity in self.amenities],
-            'reviews': [review.to_dict() for review in self.reviews]
+            'amenities': self.amenities,
+            'reviews': self.reviews
         }
